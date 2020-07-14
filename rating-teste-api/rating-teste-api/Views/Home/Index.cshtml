@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    </head>
+    <style>
+
+        *
+        {
+             padding:0;
+              margin:0;
+        }
+        i
+        {
+            font-size:21px !important;
+        }
+        pre
+        {
+            margin-top:15px;
+        }
+        .wrapper
+        {
+            width:960px;
+            margin:0 auto;
+            padding:45px 0;
+        }
+        .text-center
+        {
+             text-align:center;
+        }
+        .click-callback{
+            height:36px;
+            width:100%;
+            font-size:18px;
+        }
+        .demo-wrapper .rating-text
+        {
+            height:36px;
+            width:100%;
+            font-size:18px !important;
+        }
+        .demo i
+        {
+            margin:0 3px;
+            font-size:48px !important;
+        }
+
+        /** RATINGS **/
+        .font-size i
+        {
+            font-size:9px !important;
+        }
+    </style>
+    <body>
+        <div class="wrapper">
+            <div class="demo-wrapper text-center">
+                <div class="demo"></div>
+            </div>
+        </div>
+        <script>
+            (function ($) {
+
+                $.fn.stars = function (options) {
+
+                    var settings = $.extend({
+                        stars: 5,
+                        emptyIcon: 'fa-star-o',
+                        filledIcon: 'fa-star',
+                        color: '#E4AD22',
+                        starClass: '',
+                        value: 0,
+                        text: null,
+                        click: function () { }
+                    }, options);
+
+                    var block = this;
+
+                    for (var x = 0; x < settings.stars; x++) {
+                        var icon = $("<i>").addClass("fa").addClass(settings.emptyIcon).addClass(settings.starClass);
+
+                        if (settings.text) {
+                            icon.attr("data-rating-text", settings.text[x]);
+                        }
+
+                        if (settings.color !== "none") {
+                            icon.css("color", settings.color)
+                        }
+
+                        this.append(icon);
+                    }
+
+                    if (settings.text) {
+                        var textDiv = $("<div>").addClass("rating-text");
+                        this.append(textDiv);
+                    }
+
+                    var stars = this.find("i");
+
+                    stars.on("mouseover", function () {
+                        var index = $(this).index() + 1;
+                        var starsHovered = stars.slice(0, index);
+                        events.removeFilledStars(stars, settings);
+                        events.fillStars(starsHovered, settings);
+
+                        if (settings.text) block.find(".rating-text").html($(this).data("rating-text"));
+                    }).on("mouseout", function () {
+                        events.removeFilledStars(stars, settings);
+                        events.fillStars(stars.filter(".selected"), settings);
+                        if (settings.text) block.find(".rating-text").html("");
+                    }).on("click", function () {
+                        var index = $(this).index();
+                        settings.value = index + 1;
+                        stars.removeClass("selected").slice(0, settings.value).addClass("selected");
+                        settings.click.call(stars.get(index), settings.value);
+                    });
+
+                    events = {
+                        removeFilledStars: function (stars, s) {
+                            stars.removeClass(s.filledIcon).addClass(s.emptyIcon);
+                            return stars;
+                        },
+
+                        fillStars: function (stars, s) {
+                            stars.removeClass(s.emptyIcon).addClass(s.filledIcon);
+                            return stars;
+                        }
+                    };
+
+                    if (settings.value > 0) {
+                        var starsToSelect = stars.slice(0, settings.value);
+                        events.fillStars(starsToSelect, settings).addClass("selected");
+                    }
+
+                    return this;
+                };
+
+            }(jQuery));
+        </script>
+        <script>
+            $(".demo").stars({
+                click: function (i) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("metodo", "controle")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { a: "o que vai passar" },
+                        dataType: "json",
+                        success: function() { alert('Success'); },
+                    })
+                }
+            });
+        </script>
+    </body>
